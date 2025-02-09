@@ -37,21 +37,54 @@ build:
     IS_MILESTONE: "true"
 ```
 
-## Building Images
+## Creating New Versions
 
-### Local Development
+To create a new version of the OpenHAB container:
 
-1. Regular Release Build:
+1. Update version in `docker-compose.yml`:
+   ```yaml
+   image: ghcr.io/jannegpriv/openhab-container:${OPENHAB_VERSION:-4.3.2}
+   ```
+
+2. Commit and tag the new version:
+   ```bash
+   # Commit the changes
+   git add docker-compose.yml
+   git commit -m "Update to OpenHAB X.Y.Z"
+   
+   # Create and push the version tag
+   git tag vX.Y.Z
+   git push && git push --tags
+   ```
+
+3. GitHub Actions will automatically:
+   - Build the new container image
+   - Tag it with the version number and 'latest'
+   - Push it to GitHub Container Registry
+
+4. Deploy the new version:
+   ```bash
+   # Pull and start the new version
+   docker compose pull
+   docker compose up -d
+   ```
+
+## Local Development
+
+For local testing and development, you can build the image directly:
+
 ```bash
-docker compose build
-# or with specific version
-docker build --build-arg OPENHAB_VERSION=4.1.1 .
+# Build with default version
+docker build -t openhab-local .
+
+# Build with specific version
+docker build --build-arg OPENHAB_VERSION=4.3.2 --build-arg IS_MILESTONE=false -t openhab-local .
+
+# Run the local build
+docker run -p 8080:8080 openhab-local
 ```
 
-2. Milestone Release Build:
-```bash
-docker build --build-arg OPENHAB_VERSION=4.3.2.M2 --build-arg IS_MILESTONE=true .
-```
+Note: For production use, prefer the pre-built images from GitHub Container Registry as described above.
 
 ### GitHub Actions Automated Builds
 
