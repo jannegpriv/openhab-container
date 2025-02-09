@@ -6,9 +6,9 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        OPENHAB_VERSION: ${OPENHAB_VERSION:-4.1.0.M3}
-        IS_MILESTONE: ${IS_MILESTONE:-true}
-    image: ghcr.io/jannegpriv/openhab-container:${OPENHAB_VERSION:-4.1.0.M3}
+        OPENHAB_VERSION: ${OPENHAB_VERSION:-4.3.2}
+        IS_MILESTONE: ${IS_MILESTONE:-false}
+    image: ghcr.io/jannegpriv/openhab-container:${OPENHAB_VERSION:-4.3.2}
     container_name: openhab
     working_dir: /openhab
     volumes:
