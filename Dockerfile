@@ -1,4 +1,4 @@
-FROM eclipse-temurin:17-jre-jammy as builder
+FROM eclipse-temurin:17-jre as builder
 
 ARG OPENHAB_VERSION
 ARG IS_MILESTONE=false
@@ -29,7 +29,7 @@ RUN if [ "$IS_MILESTONE" = "true" ]; then \
     rm openhab.zip
 
 # Final stage
-FROM eclipse-temurin:17-jre-jammy
+FROM eclipse-temurin:17-jre
 
 # Install required packages
 RUN apt-get update && \
