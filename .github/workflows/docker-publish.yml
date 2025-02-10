@@ -79,8 +79,8 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
-            OPENHAB_VERSION=4.3.2
-            IS_MILESTONE=false
+            OPENHAB_VERSION=${{ steps.version.outputs.version }}
+            IS_MILESTONE=${{ steps.version.outputs.is_milestone }}
             JAVA_VERSION=17
             BUILD_DATE=${{ github.event.repository.updated_at }}
             VCS_REF=${{ github.sha }}
