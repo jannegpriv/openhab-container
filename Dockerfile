@@ -41,7 +41,10 @@ RUN apt-get update && \
     netbase \
     tini \
     tzdata \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* \
+    && if [ "$(uname -m)" = "aarch64" ]; then \
+       echo "Running on ARM64 architecture"; \
+    fi
 
 # Set environment variables
 ENV \
