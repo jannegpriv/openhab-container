@@ -105,6 +105,6 @@ RUN chmod +x /entrypoint
 ENTRYPOINT ["/entrypoint"]
 
 # Execute command
-CMD ["gosu", "openhab", "tini", "-s", "./start.sh"]
+CMD ["gosu", "openhab", "tini", "-s", "./start.sh", "console"]
 
 LABEL org.opencontainers.image.source=https://github.com/jannegpriv/openhab-container
