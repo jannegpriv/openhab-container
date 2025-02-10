@@ -67,26 +67,23 @@ fi
 if [ "${OPENHAB_USERDATA_INITIALIZE:-false}" == "true" ]; then
   echo "Initialize userdata..."
   
-  mv "${OPENHAB_USERDATA}" "${OPENHAB_USERDATA}-updating"
+  # Create a temporary directory for staging
+  TEMP_DIR=$(mktemp -d)
+  cp -av "${OPENHAB_HOME}/dist/userdata/." "$TEMP_DIR/"
 
-  initialize_volume ${OPENHAB_USERDATA} "${OPENHAB_HOME}/dist/userdata"
-  
-  ## Remove only files that are present in dist/userdata/etc (will not remove incompatible additions)
-  find "${OPENHAB_USERDATA}-updating/etc" -type f -printf "%P\n" | while IFS= read -r f; do
-    if [ -f "${OPENHAB_USERDATA}/etc/${f}" ]; then
-      rm -f "${OPENHAB_USERDATA}/etc/${f}"
-    fi
-  done
-  
-  ## Remove all files present in userdata before copy
+  # Copy existing files that we want to preserve
+  if [ -f "${OPENHAB_USERDATA}/etc/uuid" ]; then
+    mkdir -p "$TEMP_DIR/etc"
+    cp -f "${OPENHAB_USERDATA}/etc/uuid" "$TEMP_DIR/etc/"
+  fi
+
+  # Remove existing files and copy new ones
   rm -rf "${OPENHAB_USERDATA}/etc"
-  cp -av "${OPENHAB_USERDATA}-updating/etc/." "${OPENHAB_USERDATA}/etc/"
-  
-  ## Keep old uuid
-  cp "${OPENHAB_USERDATA}-updating/etc/uuid" "${OPENHAB_USERDATA}/etc/" &>/dev/null || :
-  
-  ## Remove updating folder
-  rm -rf "${OPENHAB_USERDATA}-updating"
+  mkdir -p "${OPENHAB_USERDATA}/etc"
+  cp -av "$TEMP_DIR/etc/." "${OPENHAB_USERDATA}/etc/"
+
+  # Clean up
+  rm -rf "$TEMP_DIR"
 fi
 
 # Set openhab folder permission
