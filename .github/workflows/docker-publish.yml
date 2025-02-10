@@ -61,7 +61,7 @@ jobs:
             echo "version=$VERSION" >> $GITHUB_OUTPUT
           else
             echo "is_milestone=false" >> $GITHUB_OUTPUT
-            echo "version=4.1.1" >> $GITHUB_OUTPUT
+            echo "version=4.3.2" >> $GITHUB_OUTPUT
           fi
 
       - name: Set up QEMU
