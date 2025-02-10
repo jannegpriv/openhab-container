@@ -87,8 +87,8 @@ RUN version="$(echo $OPENHAB_VERSION | sed 's/snapshot/SNAPSHOT/g')" && \
     touch "${OPENHAB_LOGDIR}/openhab.log" && \
     mkdir -p "${OPENHAB_HOME}/dist" && \
     cp -a "${OPENHAB_CONF}" "${OPENHAB_USERDATA}" "${OPENHAB_HOME}/dist" && \
-    chmod +x "${OPENHAB_HOME}/runtime/bin/update" "${OPENHAB_HOME}/runtime/bin/version" "${OPENHAB_HOME}/start.sh" && \
-    echo 'export TERM=${TERM:=dumb}' | tee -a ~/.bashrc
+    echo 'export TERM=${TERM:=dumb}' | tee -a ~/.bashrc && \
+    find "${OPENHAB_HOME}" -name start.sh -o -name update -o -name version -type f -exec chmod +x {} \;
 
 # Expose volume with configuration and userdata dir
 VOLUME ${OPENHAB_CONF} ${OPENHAB_USERDATA} ${OPENHAB_HOME}/addons
