@@ -44,7 +44,7 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
-            type=raw,value=4.3.2-arm64-{{date 'X'}}
+            type=raw,value=4.3.2-arm64
             type=raw,value=latest
 
       - name: Extract version and milestone status
