@@ -76,18 +76,59 @@ initialize_volume() {
   volume="$1"
   source="$2"
 
-  if [ -z "$(ls -A "$volume")" ]; then
+  if [ -z "$(ls -A "$volume" | grep -v '^lost+found$' | grep -v '^tmp$')" ]; then
     echo "Initializing empty volume ${volume} ..."
     cp -av "${source}/." "${volume}/"
   fi
 }
 
-# Initialize empty volumes and update userdata
+# Initialize empty volumes
 initialize_volume "${OPENHAB_CONF}" "${OPENHAB_HOME}/dist/conf"
-initialize_volume "${OPENHAB_USERDATA}" "${OPENHAB_HOME}/dist/userdata"
+
+# Check if userdata needs initialization
+if [ ! -f "${OPENHAB_USERDATA}/etc/version.properties" ]; then
+  echo "No version.properties found. Starting fresh initialization..."
+  OPENHAB_USERDATA_INITIALIZE="true"
+fi
+
+# Initialize userdata if necessary
+if [ "${OPENHAB_USERDATA_INITIALIZE:-false}" == "true" ]; then
+  echo "Initializing userdata..."
+  
+  # Backup existing data if any exists
+  if [ -d "${OPENHAB_USERDATA}" ] && [ ! -z "$(ls -A "${OPENHAB_USERDATA}" | grep -v '^lost+found$' | grep -v '^tmp$')" ]; then
+    echo "Backing up existing userdata..."
+    mv "${OPENHAB_USERDATA}" "${OPENHAB_USERDATA}-updating"
+  fi
+
+  # Initialize with fresh data
+  mkdir -p "${OPENHAB_USERDATA}"
+  cp -av "${OPENHAB_HOME}/dist/userdata/." "${OPENHAB_USERDATA}/"
+  
+  # Restore any existing configuration if we did a backup
+  if [ -d "${OPENHAB_USERDATA}-updating" ]; then
+    echo "Restoring existing configuration..."
+    
+    # Remove only files that are present in dist/userdata/etc (will not remove incompatible additions)
+    find "${OPENHAB_USERDATA}-updating/etc" -type f -printf "%P\n" | while IFS= read -r f; do
+      if [ -f "${OPENHAB_USERDATA}/etc/${f}" ]; then
+        rm -f "${OPENHAB_USERDATA}/etc/${f}"
+      fi
+    done
+    
+    # Copy back the existing etc directory
+    cp -av "${OPENHAB_USERDATA}-updating/etc/." "${OPENHAB_USERDATA}/etc/"
+    
+    # Keep old uuid if it exists
+    cp "${OPENHAB_USERDATA}-updating/etc/uuid" "${OPENHAB_USERDATA}/etc/" &>/dev/null || :
+    
+    # Clean up
+    rm -rf "${OPENHAB_USERDATA}-updating"
+  fi
+fi
 
 # Update userdata if versions do not match
-if [ ! -z $(cmp "${OPENHAB_USERDATA}/etc/version.properties" "${OPENHAB_HOME}/dist/userdata/etc/version.properties") ]; then
+if [ -f "${OPENHAB_USERDATA}/etc/version.properties" ] && [ ! -z "$(cmp "${OPENHAB_USERDATA}/etc/version.properties" "${OPENHAB_HOME}/dist/userdata/etc/version.properties" 2>/dev/null || echo 'different')" ]; then
   echo "Image and userdata versions differ! Starting an upgrade." | tee "${OPENHAB_LOGDIR}/update.log"
 
   # Make a backup of userdata
