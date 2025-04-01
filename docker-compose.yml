@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   openhab:
-    image: ghcr.io/jannegpriv/openhab-container:${OPENHAB_VERSION:-4.3.2}
+    image: ghcr.io/jannegpriv/openhab-container:${OPENHAB_VERSION:-4.3.4}
     container_name: openhab
     working_dir: /openhab
     volumes:
